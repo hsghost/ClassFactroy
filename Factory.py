@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Factory.py
 
@@ -6,10 +7,18 @@ Metaclass Based Class Factory Example
 Works with Python 2.7
 
 @author: Aifeng Yun
-@date: 3/20/2016
+@date: 4/21/2016
 
     This example demonstrates the suggested use of the metaclass technique  
     for dynamically creating classes based on the metaclass.
+
+    Change Log:
+
+        4/21/2016 - Added example demonstrating the overriding of the 
+                    __init__ function on the dynamically generated factory 
+                    product classes.
+
+        3/20/2016 - Initial release.
 
 """
 
@@ -138,6 +147,7 @@ class Factory(object):
         #   keyword on dict.
         exec(cls.extra, dict)
         exec(dict['another_func'], dict)
+        exec(dict['init_func'], dict)
         return cls.__metaclass__(name + ("_%02d" % dict['class_id']), bases, dict)
 
     def __new__(cls, function):
@@ -200,7 +210,12 @@ func2 = (
     "def printClassID(cls):\n"
     "   print \"Class ID: %02d\" % cls.class_id\n"
     )
-ProductClass1 = factory.classFactory("ProductClass", (object, ), { 'another_func': func2 })
+func3 = (
+    "def __init__(self, *args, **kwargs):\n"
+    "   print \"Product Class' __init__ is getting called...\"\n"
+    "   return super(self.__class__, self).__init__(*args, **kwargs)\n"
+    )
+ProductClass1 = factory.classFactory("ProductClass", (object, ), { 'another_func': func2, 'init_func': func3 })
 
 product = ProductClass1()
 product.printClassID()
